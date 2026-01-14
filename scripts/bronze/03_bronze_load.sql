@@ -27,13 +27,10 @@ SET
     cst_id = NULLIF(TRIM(@v_id), ''),
     cst_firstname = NULLIF(TRIM(@v_firstname), ''),
     cst_lastname = NULLIF(TRIM(@v_lastname), ''),
-    -- We use COALESCE and NULLIF to ensure STR_TO_DATE only sees a valid string or NULL.
-    -- If NULL is passed to STR_TO_DATE, it simply returns NULL without an error.
     cst_create_date = STR_TO_DATE(NULLIF(TRIM(REPLACE(@v_date, '\r', '')), ''), '%Y-%m-%d');
 -- ===========================================================================================
 
 -- 2. CRM Product Info
--- Ensure table is empty for a clean load
 TRUNCATE TABLE crm_prd_info;
 
 LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/source_crm/prd_info.csv'
@@ -75,12 +72,11 @@ SET
     sls_prd_key  = NULLIF(TRIM(@v_prd_key), ''),
     sls_cust_id  = NULLIF(TRIM(@v_cust_id), ''),
     
-    -- Date Guard: Using CASE to protect the function
+    
     sls_order_dt = CASE WHEN LENGTH(TRIM(@v_order_dt)) = 8 THEN STR_TO_DATE(TRIM(@v_order_dt), '%Y%m%d') ELSE NULL END,
     sls_ship_dt  = CASE WHEN LENGTH(TRIM(@v_ship_dt)) = 8 THEN STR_TO_DATE(TRIM(@v_ship_dt), '%Y%m%d') ELSE NULL END,
     sls_due_dt   = CASE WHEN LENGTH(TRIM(REPLACE(@v_due_dt, '\r', ''))) = 8 THEN STR_TO_DATE(TRIM(REPLACE(@v_due_dt, '\r', '')), '%Y%m%d') ELSE NULL END,
     
-    -- Numeric Guard: Explicitly checking for empty strings to prevent Error 1366
     sls_sales    = CASE WHEN TRIM(@v_sales) = '' THEN NULL ELSE CAST(TRIM(@v_sales) AS DECIMAL(18,2)) END,
     sls_quantity = CASE WHEN TRIM(@v_qty)   = '' THEN NULL ELSE CAST(TRIM(@v_qty)   AS SIGNED)       END,
     sls_price    = CASE WHEN TRIM(REPLACE(@v_price, '\r', '')) = '' THEN NULL ELSE CAST(TRIM(REPLACE(@v_price, '\r', '')) AS DECIMAL(18,2)) END;
@@ -100,7 +96,7 @@ IGNORE 1 ROWS
 (@v_cid, @v_cntry)
 SET 
     cid   = NULLIF(TRIM(@v_cid), ''),
-    -- REPLACE handles the hidden \r often found at the end of the line in Windows CSVs
+    
     cntry = NULLIF(TRIM(REPLACE(@v_cntry, '\r', '')), '');
 -- ===========================================================================================
     
@@ -118,10 +114,8 @@ IGNORE 1 ROWS
 SET 
     cid   = NULLIF(TRIM(@v_cid), ''),
     
-    -- Safe Date Load
     bdate = STR_TO_DATE(NULLIF(TRIM(@v_bdate), ''), '%Y-%m-%d'),
     
-    -- Handle trailing spaces and hidden \r in the last column
     gen   = NULLIF(TRIM(REPLACE(@v_gen, '\r', '')), '');
     
 -- ===========================================================================================
@@ -141,5 +135,4 @@ SET
     id          = NULLIF(TRIM(@v_id), ''),
     cat         = NULLIF(TRIM(@v_cat), ''),
     subcat      = NULLIF(TRIM(@v_subcat), ''),
-    -- Clean the final column of hidden Windows characters
     maintenance = NULLIF(TRIM(REPLACE(@v_maint, '\r', '')), '');
