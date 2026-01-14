@@ -11,10 +11,10 @@ Purpose:
 
 USE silver_dw;
 
--- Step 1: Clear the table for a fresh load (Idempotent operation)
+-- Clear the table for a fresh load (Idempotent operation)
 TRUNCATE TABLE silver_dw.crm_cust_info;
 
--- Step 2: Insert cleaned and deduplicated data from Bronze
+-- Insert cleaned and deduplicated data from Bronze
 INSERT INTO silver_dw.crm_cust_info (
     cst_id, 
     cst_key, 
@@ -47,7 +47,7 @@ FROM (
     FROM bronze_dw.crm_cust_info
     WHERE cst_id IS NOT NULL
 ) t
-WHERE flag_last = 1; -- Ensures only the most recent record per customer is loaded
+WHERE flag_last = 1; 
 
 /*
 ===============================================================================
@@ -87,7 +87,6 @@ SELECT
         ELSE 'n/a'
     END AS prd_line,
     CAST(prd_start_dt AS DATE) AS prd_start_dt,
-    -- Ensuring end date logic handles the '9999' or NULL cases if present
     CAST(prd_end_dt AS DATE) AS prd_end_dt
 FROM bronze_dw.crm_prd_info;
 
@@ -104,10 +103,10 @@ Purpose:
 
 USE silver_dw;
 
--- Step 1: Clear the table for a fresh load
+-- Clear the table for a fresh load
 TRUNCATE TABLE silver_dw.crm_sales_details;
 
--- Step 2: Insert cleaned data from Bronze
+-- Insert cleaned data from Bronze
 INSERT INTO silver_dw.crm_sales_details (
     sls_ord_num, 
     sls_prd_key, 
@@ -138,7 +137,7 @@ SELECT
         ELSE sls_price
     END AS sls_price
 FROM bronze_dw.crm_sales_details
-WHERE sls_ord_num IS NOT NULL; -- Exclude records with missing order numbers
+WHERE sls_ord_num IS NOT NULL; 
 
 /*
 ===============================================================================
@@ -153,10 +152,10 @@ Purpose:
 
 USE silver_dw;
 
--- Step 1: Clear the table for a fresh load
+-- Clear the table for a fresh load
 TRUNCATE TABLE silver_dw.erp_loc_a101;
 
--- Step 2: Insert cleaned data from Bronze
+-- Insert cleaned data from Bronze
 INSERT INTO silver_dw.erp_loc_a101 (
     cid, 
     cntry
@@ -185,10 +184,10 @@ Purpose:
 
 USE silver_dw;
 
--- Step 1: Clear the table for a fresh load
+-- Clear the table for a fresh load
 TRUNCATE TABLE silver_dw.erp_cust_az12;
 
--- Step 2: Insert cleaned data from Bronze
+-- Insert cleaned data from Bronze
 INSERT INTO silver_dw.erp_cust_az12 (
     cid, 
     bdate, 
@@ -228,10 +227,10 @@ Purpose:
 
 USE silver_dw;
 
--- Step 1: Clear the table for a fresh load
+--  Clear the table for a fresh load
 TRUNCATE TABLE silver_dw.erp_px_cat_g1v2;
 
--- Step 2: Insert cleaned data from Bronze
+-- Insert cleaned data from Bronze
 INSERT INTO silver_dw.erp_px_cat_g1v2 (
     id, 
     cat, 
