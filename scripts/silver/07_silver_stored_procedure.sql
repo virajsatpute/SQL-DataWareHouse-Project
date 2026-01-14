@@ -4,24 +4,23 @@ DROP PROCEDURE IF EXISTS silver_dw.load_silver$$
 
 CREATE PROCEDURE silver_dw.load_silver()
 BEGIN
-    -- 1. ALL DECLARE STATEMENTS MUST COME FIRST
+    --  ALL DECLARE STATEMENTS COME FIRST
     DECLARE v_batch_start_time DATETIME;
     DECLARE v_batch_end_time   DATETIME;
     DECLARE v_start_time       DATETIME;
     DECLARE v_end_time         DATETIME;
 
-    -- Error Handling: Must be declared after variables but before any logic
+    -- Error Handling
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
         GET DIAGNOSTICS CONDITION 1 @p1 = MESSAGE_TEXT;
-        -- Re-creating/Handling the log table inside the handler if needed
         INSERT INTO silver_load_log VALUES ('CRITICAL ERROR', 0, @p1);
         SELECT * FROM silver_load_log;
         DROP TEMPORARY TABLE IF EXISTS silver_load_log;
     END;
 
-    -- 2. NOW YOU CAN RUN EXECUTABLE LOGIC (CREATE, TRUNCATE, SET)
+    -- (CREATE, TRUNCATE, SET)
     CREATE TEMPORARY TABLE IF NOT EXISTS silver_load_log (
         step_name VARCHAR(100),
         duration_sec INT,
